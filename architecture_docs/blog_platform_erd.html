@@ -1,0 +1,193 @@
+
+<div id="erd-container"></div>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Anthropic Sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+    primaryColor: dark ? '#2e2c47' : '#EEEDFE',
+    primaryBorderColor: dark ? '#534AB7' : '#534AB7',
+    secondaryColor: dark ? '#04342C' : '#E1F5EE',
+    secondaryBorderColor: dark ? '#0F6E56' : '#0F6E56',
+    tertiaryColor: dark ? '#412402' : '#FAEEDA',
+    tertiaryBorderColor: dark ? '#854F0B' : '#854F0B',
+  },
+});
+
+const diagram = `erDiagram
+  USER {
+    uuid id PK
+    string username
+    string email
+    string password_hash
+    string role
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  USER_PROFILE {
+    uuid id PK
+    uuid user_id FK
+    string display_name
+    text bio
+    string avatar_url
+    jsonb social_links
+    timestamp updated_at
+  }
+
+  BLOG {
+    uuid id PK
+    uuid owner_id FK
+    string slug
+    string title
+    text description
+    string status
+    jsonb settings
+    timestamp created_at
+  }
+
+  POST {
+    uuid id PK
+    uuid blog_id FK
+    uuid author_id FK
+    string slug
+    string title
+    jsonb content
+    jsonb metadata
+    string status
+    tsvector search_vector
+    timestamp published_at
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  POST_REVISION {
+    uuid id PK
+    uuid post_id FK
+    uuid editor_id FK
+    jsonb content_snapshot
+    string change_summary
+    int version_number
+    timestamp created_at
+  }
+
+  TAG {
+    uuid id PK
+    string name
+    string slug
+    string color
+  }
+
+  POST_TAG {
+    uuid post_id FK
+    uuid tag_id FK
+  }
+
+  CATEGORY {
+    uuid id PK
+    uuid blog_id FK
+    uuid parent_id FK
+    string name
+    string slug
+    int sort_order
+  }
+
+  MEDIA_ASSET {
+    uuid id PK
+    uuid uploaded_by FK
+    uuid post_id FK
+    string s3_key
+    string s3_bucket
+    string cdn_url
+    string mime_type
+    bigint file_size_bytes
+    jsonb metadata
+    timestamp uploaded_at
+  }
+
+  COMMENT {
+    uuid id PK
+    uuid post_id FK
+    uuid author_id FK
+    uuid parent_id FK
+    text body
+    string status
+    timestamp created_at
+    timestamp updated_at
+  }
+
+  REACTION {
+    uuid id PK
+    uuid user_id FK
+    uuid post_id FK
+    uuid comment_id FK
+    string emoji_code
+    timestamp created_at
+  }
+
+  FOLLOW {
+    uuid id PK
+    uuid follower_id FK
+    uuid blog_id FK
+    timestamp followed_at
+  }
+
+  USER ||--|| USER_PROFILE : "has (composition)"
+  USER ||--o{ BLOG : "owns"
+  USER ||--o{ POST : "authors"
+  USER ||--o{ COMMENT : "writes"
+  USER ||--o{ REACTION : "gives"
+  USER ||--o{ FOLLOW : "follows"
+  USER ||--o{ MEDIA_ASSET : "uploads"
+  BLOG ||--|{ POST : "contains (composition)"
+  BLOG ||--o{ CATEGORY : "organises"
+  BLOG ||--o{ FOLLOW : "followed by"
+  POST ||--o{ POST_REVISION : "versioned by (aggregation)"
+  POST ||--o{ COMMENT : "receives"
+  POST ||--o{ REACTION : "receives"
+  POST ||--o{ MEDIA_ASSET : "has (aggregation)"
+  POST }o--o{ TAG : "tagged with"
+  POST_TAG }o--|| POST : "links"
+  POST_TAG }o--|| TAG : "links"
+  COMMENT ||--o{ COMMENT : "replies to (recursive)"
+  CATEGORY ||--o{ CATEGORY : "sub-category (recursive)"
+  CATEGORY ||--o{ POST : "groups"
+  USER ||--o{ POST_REVISION : "edits"
+`;
+
+const { svg } = await mermaid.render('erd-svg', diagram);
+document.getElementById('erd-container').innerHTML = svg;
+
+document.querySelectorAll('#erd-container svg .node').forEach(node => {
+  const firstPath = node.querySelector('path[d]');
+  if (!firstPath) return;
+  const d = firstPath.getAttribute('d');
+  const nums = d.match(/-?[\d.]+/g)?.map(Number);
+  if (!nums || nums.length < 8) return;
+  const xs = [nums[0], nums[2], nums[4], nums[6]];
+  const ys = [nums[1], nums[3], nums[5], nums[7]];
+  const x = Math.min(...xs), y = Math.min(...ys);
+  const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8');
+  for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+    if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+  }
+  firstPath.replaceWith(rect);
+});
+
+document.querySelectorAll('#erd-container svg .row-rect-odd path, #erd-container svg .row-rect-even path').forEach(p => {
+  p.setAttribute('stroke', 'none');
+});
+</script>
