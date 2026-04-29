@@ -1,0 +1,35 @@
+# Blog api
+
+openapi: 3.0.0
+info:
+  title: "API"
+  version: "1.0.0"
+  contact:
+    name: Blog service
+    email: contact@example.com
+    url: https://example.com/
+tags:
+  - name: BlogService
+    description: BlogService related requests
+paths:
+  /api/v1/blogs:
+    get:
+      operationId: getBlogs
+      summary: Get all blogs for the given user id
+      tags: [ 'BlogService' ]
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    Blog:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        content:
+          type: string
