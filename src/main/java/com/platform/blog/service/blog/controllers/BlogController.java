@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/blogs")
 @AllArgsConstructor
@@ -17,5 +19,15 @@ public class BlogController {
   @ResponseStatus(HttpStatus.CREATED)
   public BlogDto saveBlog(@Valid @RequestBody BlogDto blogDto) {
     return blogService.saveBlog(blogDto);
+  }
+
+  @GetMapping
+  public List<BlogDto> fidAll() {
+    return blogService.getAllBlogs();
+  }
+
+  @GetMapping("/{id}")
+  public BlogDto getBlogById(@PathVariable String id) {
+    return blogService.getBlogById(id);
   }
 }

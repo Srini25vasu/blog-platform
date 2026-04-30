@@ -14,6 +14,10 @@ public class BlogException extends BaseException {
     return new BlogException(ErrorCode.TRANSACTION_ERROR, "Failed to save blog", detail);
   }
 
+  public static BlogException getAllFailed(String detail) {
+    return new BlogException(ErrorCode.TRANSACTION_ERROR, "Failed to get all blogs", detail);
+  }
+
   public static BlogException notFound(Long id) {
     return new BlogException(ErrorCode.RESOURCE_NOT_FOUND, "Blog not found", "No blog exists with id: " + id);
   }

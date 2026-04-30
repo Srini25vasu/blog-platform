@@ -11,8 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -24,7 +24,7 @@ public class BlogServiceImpl implements BlogService {
 
   @Override
   public BlogDto saveBlog(BlogDto blogDto) {
-    log.info("Blog recieved: {}", blogDto);
+    log.info("Blog received: {}", blogDto);
     if (blogDto == null) {
       throw BlogException.invalidInput("BlogDto must not be null");
     }
@@ -53,13 +53,35 @@ public class BlogServiceImpl implements BlogService {
   }
 
   @Override
-  public BlogDto getBlogById(Long id) {
-    return null;
+  public BlogDto getBlogById(String id) {
+    if (id == null) {
+      throw BlogException.invalidInput("Blog id must not be null");
+    }
+    try {
+      return blogRepository.findById(UUID.fromString(id))
+          .map(blogMapper::toBlogDto)
+          .orElseThrow(() -> BlogException.invalidInput("Blog not found with id: " + id));
+    } catch (DataAccessException ex) {
+      log.error("Database error while getting blog by id {}: {}", id, ex.getMessage(), ex);
+      throw BlogException.getAllFailed(ex.getMessage());
+    } catch (Exception ex) {
+      log.error("Unexpected error while getting blog by id {}: {}", id, ex.getMessage(), ex);
+      throw BlogException.getAllFailed(ex.getMessage());
+    }
   }
 
   @Override
   public List<BlogDto> getAllBlogs() {
-    return List.of();
+    try {
+      List<Blog> blogs = blogRepository.findAll();
+      return blogMapper.toBlogDtoList(blogs);
+    } catch (DataAccessException ex) {
+      log.error("Database error while getting all blogs: {}", ex.getMessage(), ex);
+      throw BlogException.getAllFailed(ex.getMessage());
+    } catch (Exception ex) {
+      log.error("Unexpected error while getting all blogs: {}", ex.getMessage(), ex);
+      throw BlogException.getAllFailed(ex.getMessage());
+    }
   }
 
   @PostConstruct

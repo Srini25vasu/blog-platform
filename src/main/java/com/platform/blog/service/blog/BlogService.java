@@ -8,6 +8,6 @@ public interface BlogService {
   BlogDto saveBlog(BlogDto blog);
   BlogDto updateBlog(BlogDto blog);
   BlogDto deleteBlog(BlogDto blog);
-  BlogDto getBlogById(Long id);
+  BlogDto getBlogById(String id);
   List<BlogDto> getAllBlogs();
 }
