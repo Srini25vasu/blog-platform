@@ -1,5 +1,6 @@
-package com.platform.blog.service.blog;
+package com.platform.blog.service.blog.persistence;
 
+import com.platform.blog.service.blog.Blog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

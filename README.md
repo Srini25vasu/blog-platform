@@ -25,7 +25,7 @@ A full-featured **Blog Platform** built with **Spring Boot**, designed to suppor
 The platform follows a layered Spring Boot architecture:
 
 ```
-Controller → Service (Interface + Impl) → Repository (Spring Data JPA) → PostgreSQL
+Controller → Service → Repository (Spring Data JPA) → PostgreSQL
 ```
 
 - **Database**: PostgreSQL with a dedicated `portfolio` schema

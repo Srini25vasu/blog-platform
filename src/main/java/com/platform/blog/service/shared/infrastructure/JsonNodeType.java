@@ -20,7 +20,7 @@ public class JsonNodeType extends AbstractJavaType<JsonNode> {
 
     @Override
     public JdbcType getRecommendedJdbcType(JdbcTypeIndicators indicators) {
-        return indicators.getJdbcType(Types.OTHER);
+        return indicators.getJdbcType(Types.VARCHAR);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class JsonNodeType extends AbstractJavaType<JsonNode> {
             try {
                 return type.cast(MAPPER.writeValueAsString(value));
             } catch (Exception e) {
-                throw new IllegalArgumentException("Could not serialize JsonNode", e);
+                throw new IllegalArgumentException("Could not serialize JsonNode to String", e);
             }
         }
         throw unknownUnwrap(type);
@@ -49,6 +49,9 @@ public class JsonNodeType extends AbstractJavaType<JsonNode> {
     public <X> JsonNode wrap(X value, WrapperOptions options) {
         if (value == null) return null;
         try {
+            if (value instanceof byte[] bytes) {
+                return MAPPER.readTree(new String(bytes, java.nio.charset.StandardCharsets.UTF_8));
+            }
             return MAPPER.readTree(value.toString());
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not deserialize to JsonNode: " + value, e);
