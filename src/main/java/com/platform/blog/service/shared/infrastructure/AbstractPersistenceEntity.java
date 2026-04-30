@@ -44,7 +44,7 @@ public abstract class AbstractPersistenceEntity {
     AbstractPersistenceEntity that = (AbstractPersistenceEntity) o;
     return id != null && id.equals(that.id);
   }
-
+  @Override
   public int hashCode() {
     return getClass().hashCode();
   }
