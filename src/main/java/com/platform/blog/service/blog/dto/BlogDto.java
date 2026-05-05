@@ -1,5 +1,6 @@
 package com.platform.blog.service.blog.dto;
 
+import com.platform.blog.service.blog.BlogStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,6 +25,9 @@ public record BlogDto(
       String author,
 
       @Size(max = 1000, message = "Description must not exceed 1000 characters")
-      String description
+      String description,
+
+      BlogStatus status
+
 ) {
 }

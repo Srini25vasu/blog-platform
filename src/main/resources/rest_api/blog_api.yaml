@@ -2,7 +2,7 @@
 
 openapi: 3.0.0
 info:
-  title: "API"
+  title: "Blog platform API"
   version: "1.0.0"
   contact:
     name: Blog service
@@ -13,6 +13,23 @@ tags:
     description: BlogService related requests
 paths:
   /api/v1/blogs:
+    post:
+      operationId: saveBlog
+      summary: Save blog
+      tags: [ 'BlogService' ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Blog'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog' 
     get:
       operationId: getBlogs
       summary: Get all blogs for the given user id
@@ -20,6 +37,31 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Blog'
+
+  /api/v1/blogs/{id}:
+    get:
+      operationId: getBlog
+      summary: Get blog by id
+      tags: [ 'BlogService' ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Blog'
 
 components:
   schemas:
@@ -31,5 +73,19 @@ components:
           format: int64
         title:
           type: string
+          maxLength: 255
+        slug:
+          type: string
+          maxLength: 255
         content:
+          type: object
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - DRAFT
+            - PUBLISHED
+            - ARCHIVED
+        author:
           type: string
