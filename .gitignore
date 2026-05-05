@@ -1,6 +1,6 @@
 HELP.md
 readme_backup.txt
-rest_api_readme.txt
+architecture_docs/rest_api_readme.txt
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
