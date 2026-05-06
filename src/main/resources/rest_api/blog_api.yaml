@@ -17,6 +17,18 @@ paths:
       operationId: saveBlog
       summary: Save blog
       tags: [ 'BlogService' ]
+      parameters:
+        - in: header
+          name: X-Idempotency-Key
+          required: true
+          schema:
+            type: string
+          description: "Unique identifier for the request to ensure idempotency. Same key will return the same response for duplicate requests."
+        - in: header
+          name: X-API-Key
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -26,6 +38,26 @@ paths:
       responses:
         '200':
           description: OK
+          headers:
+            X-RateLimit-Limit:
+              schema:
+                type: integer
+                format: int32
+                description: The number of requests allowed per hour
+            X-RateLimit-Remaining:
+              schema:
+                type: integer
+                format: int32
+                description: The number of requests left for the current rate limit window.
+            X-RateLimit-Reset:
+              schema:
+                type: integer
+                format: int32 
+                description: The UTC date/time at which the current rate limit window resets.
+            X-Idempotency-Key:
+              schema:
+                type: string  
+                description: The idempotency key that was provided in the request
           content:
             application/json:
               schema:
