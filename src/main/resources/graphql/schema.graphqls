@@ -1,0 +1,23 @@
+type Blog {
+    id: ID
+    title: String
+    content: String
+    description: String
+    status: String
+    author: String
+}
+
+input BlogInput {
+    title: String
+    content: String
+    description: String
+    status: String
+    author: String
+}
+type Query {
+    blogs: [Blog]
+    blog(id: ID!): Blog
+}
+type Mutation {
+    saveBlog(blog: BlogInput!): Blog
+}
