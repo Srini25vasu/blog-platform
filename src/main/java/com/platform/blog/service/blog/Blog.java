@@ -2,18 +2,18 @@ package com.platform.blog.service.blog;
 
 import com.platform.blog.service.shared.infrastructure.JsonNodeType;
 import com.platform.blog.service.shared.infrastructure.AbstractPersistenceEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.JavaType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import tools.jackson.databind.JsonNode;
+
+import java.util.List;
 
 @Entity(name = "blog")
 @Getter
@@ -49,4 +49,8 @@ public class Blog extends AbstractPersistenceEntity {
   @JdbcTypeCode(SqlTypes.VARCHAR)
   @Column(name = "status")
   private BlogStatus status;
+
+  @OneToMany(mappedBy = "blog", fetch = FetchType.LAZY)
+  @BatchSize(size = 20)
+  private List<Post> posts;
 }
