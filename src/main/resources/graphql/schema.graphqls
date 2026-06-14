@@ -1,5 +1,5 @@
 type Blog {
-    id: ID
+    id: String
     title: String
     content: String
     description: String
