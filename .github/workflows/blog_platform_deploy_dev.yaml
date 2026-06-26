@@ -43,3 +43,62 @@ jobs:
       #     name: blog-platform-jar
       #     path: target/*.jar
       #     retention-days: 5
+
+  deploy:
+    name: Deploy to OpenShift
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    env:
+      APP_NAME: blog-platform
+      IMAGE: ${{ secrets.DOCKER_HUB_USERNAME }}/cust_app:latest
+      NAMESPACE: ${{ secrets.OPENSHIFT_NAMESPACE }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: latest
+
+      - name: Log in to OpenShift
+        run: |
+          oc login --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --server=${{ secrets.OPENSHIFT_SERVER }} \
+            --insecure-skip-tls-verify=true
+          oc project ${{ env.NAMESPACE }}
+
+      - name: Create or update deployment
+        run: |
+          # Create app if it does not exist yet, otherwise update the image
+          if oc get deployment ${{ env.APP_NAME }} -n ${{ env.NAMESPACE }} > /dev/null 2>&1; then
+            echo "Deployment exists – updating image..."
+            oc set image deployment/${{ env.APP_NAME }} \
+              ${{ env.APP_NAME }}=${{ env.IMAGE }} \
+              -n ${{ env.NAMESPACE }}
+          else
+            echo "Deployment not found – creating new app..."
+            oc new-app --name=${{ env.APP_NAME }} \
+              --docker-image=${{ env.IMAGE }} \
+              -n ${{ env.NAMESPACE }}
+          fi
+
+      - name: Expose service (creates Route if missing)
+        run: |
+          if ! oc get route ${{ env.APP_NAME }} -n ${{ env.NAMESPACE }} > /dev/null 2>&1; then
+            oc expose svc/${{ env.APP_NAME }} -n ${{ env.NAMESPACE }}
+          fi
+
+      - name: Wait for rollout to complete
+        run: |
+          oc rollout status deployment/${{ env.APP_NAME }} \
+            -n ${{ env.NAMESPACE }} --timeout=180s
+
+      - name: Print public route URL
+        run: |
+          echo "App URL: https://$(oc get route ${{ env.APP_NAME }} \
+            -n ${{ env.NAMESPACE }} \
+            -o jsonpath='{.spec.host}')"
+
