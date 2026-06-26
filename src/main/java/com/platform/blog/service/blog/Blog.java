@@ -3,6 +3,7 @@ package com.platform.blog.service.blog;
 import com.platform.blog.service.shared.infrastructure.JsonNodeType;
 import com.platform.blog.service.shared.infrastructure.AbstractPersistenceEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Blog extends AbstractPersistenceEntity {
 
   @Column(name = "slug", nullable = false, unique = true)

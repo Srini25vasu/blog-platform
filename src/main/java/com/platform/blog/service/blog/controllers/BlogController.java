@@ -22,7 +22,7 @@ public class BlogController {
   }
 
   @GetMapping
-  public List<BlogDto> fidAll() {
+  public List<BlogDto> findAll() {
     return blogService.getAllBlogs();
   }
 
