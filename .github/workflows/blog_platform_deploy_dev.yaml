@@ -28,11 +28,11 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
       - name: Build and push Docker image
-        uses: docker/docker-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tag: ${{ secrets.DOCKER_HUB_USERNAME }}/cust_app:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/cust_app:latest
 
 
 
